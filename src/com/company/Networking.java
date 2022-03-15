@@ -10,6 +10,11 @@ public class Networking
     InputStream input;
     OutputStream output;
 
+    Networking()
+    {
+
+    }
+
 
     Networking(String host, int port)
     {

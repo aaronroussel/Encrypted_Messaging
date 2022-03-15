@@ -8,6 +8,7 @@ import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 public class Gui
 {
+    // declaring some stuff
     private JFrame mainFrame;
     private JLabel headerLabel;
     private JLabel statusLabel;
@@ -20,6 +21,7 @@ public class Gui
     }
     private void startGui()
     {
+        // initialize the main parts of the UI
         mainFrame = new JFrame("Encode/Decoder");
         mainFrame.setSize(400,300);
         mainFrame.setLayout(new GridLayout(3,1));
@@ -45,34 +47,45 @@ public class Gui
     }
     void uiBegin()
     {
+        // initialize the rest of the UI
         headerLabel.setText("");
 
-        JButton okButton = new JButton("Select file");
+        JTextField ipText = new JTextField("127.0.0.1");
+        JTextField portText = new JTextField("5353");
+        JTextField text = new JTextField("TEXT HERE");
 
 
-        okButton.setActionCommand("Select File to Decode");
+        JButton serverStart = new JButton("Start Server");
+        serverStart.setActionCommand("START");
+        serverStart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // start the server process
+                Server server = new Server();
+                server.start();
+            }
+        });
 
-
-        okButton.addActionListener(new ActionListener() {
+        JButton connect = new JButton("Connect");
+        connect.setActionCommand("CONNECT");
+        connect.addActionListener(new ActionListener()
+        {
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                final JFileChooser fc = new JFileChooser();
-                int returnVal = fc.showOpenDialog(mainFrame);
-                if(returnVal == JFileChooser.APPROVE_OPTION);
-                {
-                    filePath = fc.getSelectedFile().getAbsolutePath();
-                    File_Handling handler = new File_Handling(filePath);
-                    headerLabel.setText(Decoder.decode (handler.returnFileContents()) );
-                    //actions to read file and do whatever. not there yet lol
-
-                }
-
+                // connect client to the server
+                Client client = new Client();
+                client.setConnection ( ipText.getText(), Integer.parseInt(portText.getText()) );
+                client.startConnection();
+                // send encoded message
+                client.sendMessage( Encoder.encode (text.getText()) );
             }
         });
-        controlPanel.add(okButton);
+        controlPanel.add(connect);
+        controlPanel.add(serverStart);
+        controlPanel.add(ipText);
+        controlPanel.add(portText);
         mainFrame.setVisible(true);
-
     }
 
 }

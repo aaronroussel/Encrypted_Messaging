@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.*;
 
-public class Client
+public class Client extends Networking
 {
         private String userName;
         private String ipAddress;
@@ -42,6 +42,7 @@ public class Client
                 Socket client = new Socket(ipAddress, portNumber);
                 this.socket = client;
 
+                /*
                 System.out.println("Connected to: " + client.getRemoteSocketAddress());
                 OutputStream outputStream = client.getOutputStream();
                 DataOutputStream out = new DataOutputStream(outputStream);
@@ -52,6 +53,7 @@ public class Client
 
                 System.out.println("Server Says: " + in.readUTF());
                 client.close();
+                */
 
             }
             catch (SocketTimeoutException s)
@@ -61,6 +63,21 @@ public class Client
             catch (IOException e)
             {
                 e.printStackTrace();
+            }
+        }
+        public void sendMessage(int[] nums)
+        {
+            try {
+                OutputStream output = clientSocket.getOutputStream();
+                DataOutputStream out = new DataOutputStream(output);
+                for(int i = 0; i < nums.length; i++)
+                {
+                    out.writeInt(nums[i]);
+                }
+            }
+            catch(IOException x)
+            {
+                x.printStackTrace();
             }
         }
 

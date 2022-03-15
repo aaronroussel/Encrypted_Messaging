@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 
 
-public class Server
+public class Server extends Networking
 {
     private ServerSocket serverSocket;
     private final int port = 5353;
@@ -20,9 +20,11 @@ public class Server
                 System.out.println("Just connected to + " + server.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(server.getInputStream());
 
-                System.out.println(in.readUTF());
-                DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                out.writeUTF("Thank you for connecting to: " + server.getLocalSocketAddress() + "Goodbye! /n");
+                while(true) {
+                    System.out.println(in.readInt());
+                }
+               // DataOutputStream out = new DataOutputStream(server.getOutputStream());
+                // out.writeUTF("Thank you for connecting to: " + server.getLocalSocketAddress() + "Goodbye! /n");
             }
             catch (SocketTimeoutException s)
             {
