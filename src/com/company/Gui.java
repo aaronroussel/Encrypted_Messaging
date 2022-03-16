@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicOptionPaneUI;
+import java.net.*;
 
 
 public class Gui
@@ -47,6 +48,7 @@ public class Gui
     }
     void uiBegin()
     {
+        Client client = new Client();
         // initialize the rest of the UI
         headerLabel.setText("");
 
@@ -55,18 +57,18 @@ public class Gui
         JTextField text = new JTextField("TEXT HERE");
 
 
+
         JButton serverStart = new JButton("Start Server");
         serverStart.setActionCommand("START");
         serverStart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // start the server process
-                Server server = new Server();
-                server.start();
+
             }
         });
 
-        JButton connect = new JButton("Connect");
+
+        JButton connect = new JButton("Send Message");
         connect.setActionCommand("CONNECT");
         connect.addActionListener(new ActionListener()
         {
@@ -74,17 +76,19 @@ public class Gui
             public void actionPerformed(ActionEvent e)
             {
                 // connect client to the server
-                Client client = new Client();
                 client.setConnection ( ipText.getText(), Integer.parseInt(portText.getText()) );
                 client.startConnection();
+
                 // send encoded message
-                client.sendMessage( Encoder.encode (text.getText()) );
+                client.sendMessage(client.getSocket(),Encoder.encode (text.getText()) );
+                text.setText("");
             }
         });
         controlPanel.add(connect);
         controlPanel.add(serverStart);
         controlPanel.add(ipText);
         controlPanel.add(portText);
+        controlPanel.add(text);
         mainFrame.setVisible(true);
     }
 

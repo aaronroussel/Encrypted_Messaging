@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.*;
 
-public class Client extends Networking
+public class Client
 {
         private String userName;
         private String ipAddress;
@@ -65,15 +65,12 @@ public class Client extends Networking
                 e.printStackTrace();
             }
         }
-        public void sendMessage(int[] nums)
+        public void sendMessage(Socket socket, int[] nums)
         {
             try {
-                OutputStream output = clientSocket.getOutputStream();
-                DataOutputStream out = new DataOutputStream(output);
-                for(int i = 0; i < nums.length; i++)
-                {
-                    out.writeInt(nums[i]);
-                }
+
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                out.writeObject(nums);
             }
             catch(IOException x)
             {
@@ -85,6 +82,11 @@ public class Client extends Networking
         {
             this.ipAddress = ipAddress;
             this.portNumber = portNumber;
+        }
+
+        public java.net.Socket returnClient()
+        {
+            return this.socket;
         }
 
 }

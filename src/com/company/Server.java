@@ -3,7 +3,7 @@ import java.io.*;
 import java.net.*;
 
 
-public class Server extends Networking
+public class Server
 {
     private ServerSocket serverSocket;
     private final int port = 5353;
@@ -18,11 +18,12 @@ public class Server extends Networking
                 Socket server = serverSocket.accept();
 
                 System.out.println("Just connected to + " + server.getRemoteSocketAddress());
-                DataInputStream in = new DataInputStream(server.getInputStream());
+                ObjectInputStream in = new ObjectInputStream(server.getInputStream());
 
-                while(true) {
-                    System.out.println(in.readInt());
-                }
+                int[] x = (int[])in.readObject();
+                String s = null;
+                s = Decoder.decode(x);
+                System.out.println(s);
                // DataOutputStream out = new DataOutputStream(server.getOutputStream());
                 // out.writeUTF("Thank you for connecting to: " + server.getLocalSocketAddress() + "Goodbye! /n");
             }
@@ -36,12 +37,15 @@ public class Server extends Networking
                 e.printStackTrace();
                 break;
             }
+            catch (ClassNotFoundException z)
+            {
+                z.printStackTrace();
+            }
         }
     }
     public void startSocket(int portnum) throws IOException
     {
         serverSocket = new ServerSocket(portnum);
-        serverSocket.setSoTimeout(10000);
     }
 
     public void start()
