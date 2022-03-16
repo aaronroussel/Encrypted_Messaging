@@ -3,7 +3,9 @@ package com.company;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.plaf.basic.BasicOptionPaneUI;
+import java.io.IOException;
 import java.net.*;
 
 
@@ -24,7 +26,7 @@ public class Gui
     {
         // initialize the main parts of the UI
         mainFrame = new JFrame("Encode/Decoder");
-        mainFrame.setSize(400,300);
+        mainFrame.setSize(1000,600);
         mainFrame.setLayout(new GridLayout(3,1));
 
         headerLabel = new JLabel("", JLabel.CENTER);
@@ -54,19 +56,14 @@ public class Gui
 
         JTextField ipText = new JTextField("127.0.0.1");
         JTextField portText = new JTextField("5353");
-        JTextField text = new JTextField("TEXT HERE");
+        JTextField text = new JTextField("TEXT HERE", JTextField.CENTER);
 
 
-
-        JButton serverStart = new JButton("Start Server");
-        serverStart.setActionCommand("START");
-        serverStart.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-            }
-        });
-
+        JTextArea text2 = new JTextArea(10,50);
+        JScrollPane scroll = new JScrollPane(text2,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        text2.append("Messages: \n");
 
         JButton connect = new JButton("Send Message");
         connect.setActionCommand("CONNECT");
@@ -82,13 +79,31 @@ public class Gui
                 // send encoded message
                 client.sendMessage(client.getSocket(),Encoder.encode (text.getText()) );
                 text.setText("");
+                String s = client.getMessage();
+                text2.append( s + "\n");
+
             }
         });
+
+
+        ActionListener updateText = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                client.setConnection ( ipText.getText(), Integer.parseInt(portText.getText()) );
+                client.startConnection();
+                String s = client.getMessage();
+                text2.setText(s);
+            }
+        };
+        Timer timer = new Timer(10, updateText);
+        timer.setRepeats(true);
+
         controlPanel.add(connect);
-        controlPanel.add(serverStart);
         controlPanel.add(ipText);
         controlPanel.add(portText);
         controlPanel.add(text);
+        controlPanel.add(text2);
+
         mainFrame.setVisible(true);
     }
 

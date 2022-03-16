@@ -7,6 +7,7 @@ public class Server
 {
     private ServerSocket serverSocket;
     private final int port = 5353;
+    private java.net.Socket socket;
 
     public void run()
     {
@@ -24,8 +25,10 @@ public class Server
                 String s = null;
                 s = Decoder.decode(x);
                 System.out.println(s);
-               // DataOutputStream out = new DataOutputStream(server.getOutputStream());
-                // out.writeUTF("Thank you for connecting to: " + server.getLocalSocketAddress() + "Goodbye! /n");
+                String confirmation = "SUCCESS!";
+                ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
+                int[] ray = Encoder.encode(confirmation);
+                out.writeObject(ray);
             }
             catch (SocketTimeoutException s)
             {

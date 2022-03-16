@@ -11,7 +11,7 @@ public class Client
         private String userName;
         private String ipAddress;
         private int portNumber;
-        private java.net.Socket socket = null;
+        private java.net.Socket socket;
 
         public Client(){}
 
@@ -41,20 +41,7 @@ public class Client
                 System.out.println("Connecting to " + ipAddress + " on port " + portNumber);
                 Socket client = new Socket(ipAddress, portNumber);
                 this.socket = client;
-
-                /*
-                System.out.println("Connected to: " + client.getRemoteSocketAddress());
-                OutputStream outputStream = client.getOutputStream();
-                DataOutputStream out = new DataOutputStream(outputStream);
-
-                out.writeUTF("Hello! " +  client.getLocalSocketAddress());
-                InputStream inputStream = client.getInputStream();
-                DataInputStream in = new DataInputStream(inputStream);
-
-                System.out.println("Server Says: " + in.readUTF());
-                client.close();
-                */
-
+                // this may need to use another port number, different than the port used for the other socket
             }
             catch (SocketTimeoutException s)
             {
@@ -78,15 +65,35 @@ public class Client
             }
         }
 
+        public String getMessage()
+        {
+            while(true)
+            {
+                try
+                {
+                    ObjectInputStream in = new ObjectInputStream(this.socket.getInputStream());
+                    int[] x = ((int[])in.readObject());
+                    String s;
+                    s = Decoder.decode(x);
+                    System.out.println(s);
+                    return s;
+                }
+                catch(IOException e)
+                {
+                    e.printStackTrace();
+                }
+                catch(ClassNotFoundException c)
+                {
+                    c.printStackTrace();
+                }
+            }
+        }
+
         public void setConnection(String ipAddress, int portNumber)
         {
             this.ipAddress = ipAddress;
             this.portNumber = portNumber;
         }
 
-        public java.net.Socket returnClient()
-        {
-            return this.socket;
-        }
 
 }
