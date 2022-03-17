@@ -8,6 +8,7 @@ public class Server
     private ServerSocket serverSocket;
     private final int port = 5353;
     private java.net.Socket socket;
+    ObjectOutputStream out;
 
     public void run()
     {
@@ -18,17 +19,23 @@ public class Server
                 System.out.println("waiting for client on port " + serverSocket.getLocalPort() + ".....");
                 Socket server = serverSocket.accept();
 
-                System.out.println("Just connected to + " + server.getRemoteSocketAddress());
+                System.out.println("+ " + server.getRemoteSocketAddress());
                 ObjectInputStream in = new ObjectInputStream(server.getInputStream());
 
                 int[] x = (int[])in.readObject();
                 String s = null;
                 s = Decoder.decode(x);
-                System.out.println(s);
+                System.out.println("\u001b[31m" + s + "\u001b[0m");
                 String confirmation = "SUCCESS!";
-                ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
+
+                if (out == null)
+                {
+                    ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
+                    this.out = out;
+                }
                 int[] ray = Encoder.encode(confirmation);
                 out.writeObject(ray);
+                out.flush();
             }
             catch (SocketTimeoutException s)
             {

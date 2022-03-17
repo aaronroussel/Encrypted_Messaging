@@ -10,6 +10,5 @@ public class Client_Main
 
         Client client = new Client();
         client.setConnection(IP_ADDRESS, PORT_NUMBER);
-        client.startConnection();
     }
 }

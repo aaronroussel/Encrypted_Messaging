@@ -12,19 +12,19 @@ public class Client
         private String ipAddress;
         private int portNumber;
         private java.net.Socket socket;
+        private ObjectOutputStream out;
+        private ObjectInputStream in;
 
         public Client(){}
 
-        public Client(String userName, String ipAddress, int portNumber, java.net.Socket socket)
+        public Client(String ipAddress, int portNumber, java.net.Socket socket)
         {
-            this.userName = userName;
             this.ipAddress = ipAddress;
             this.portNumber = portNumber;
             this.socket = socket;
         }
-        public Client(String userName, String ipAddress, int portNumber)
+        public Client( String ipAddress, int portNumber)
         {
-            this.userName = userName;
             this.ipAddress = ipAddress;
             this.portNumber = portNumber;
         }
@@ -34,14 +34,15 @@ public class Client
             return this.socket;
         }
 
-        public void startConnection()
+        public void startSocket()
         {
             try
             {
                 System.out.println("Connecting to " + ipAddress + " on port " + portNumber);
-                Socket client = new Socket(ipAddress, portNumber);
-                this.socket = client;
-                // this may need to use another port number, different than the port used for the other socket
+
+                Socket socket = new Socket(ipAddress, portNumber);
+                this.socket = socket;
+                System.out.println(socket.getRemoteSocketAddress());
             }
             catch (SocketTimeoutException s)
             {
@@ -52,12 +53,37 @@ public class Client
                 e.printStackTrace();
             }
         }
-        public void sendMessage(Socket socket, int[] nums)
+        public void startOut()
+        {
+            try
+            {
+                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                this.out = out;
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        public void startIn()
+        {
+            try
+            {
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+                this.in = in;
+            }
+            catch(IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        public void sendMessage(int[] nums)
         {
             try {
 
-                ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+                //ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
                 out.writeObject(nums);
+                out.flush();
             }
             catch(IOException x)
             {
@@ -71,7 +97,6 @@ public class Client
             {
                 try
                 {
-                    ObjectInputStream in = new ObjectInputStream(this.socket.getInputStream());
                     int[] x = ((int[])in.readObject());
                     String s;
                     s = Decoder.decode(x);

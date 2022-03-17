@@ -7,6 +7,7 @@ import javax.swing.border.*;
 import javax.swing.plaf.basic.BasicOptionPaneUI;
 import java.io.IOException;
 import java.net.*;
+import java.io.*;
 
 
 public class Gui
@@ -17,6 +18,7 @@ public class Gui
     private JLabel statusLabel;
     private JPanel controlPanel;
     private String filePath;
+    private Socket socket;
 
     public Gui()
     {
@@ -50,16 +52,32 @@ public class Gui
     }
     void uiBegin()
     {
-        Client client = new Client();
+        Client client = new Client("127.0.0.1", 5353);
+
+        //ConnectionThread connection = new ConnectionThread(client);
+
+        OutputThread output = new OutputThread(client);
+
+        client.startSocket();
+        client.startOut();
+
+        //output.start();
+
         // initialize the rest of the UI
         headerLabel.setText("");
 
         JTextField ipText = new JTextField("127.0.0.1");
         JTextField portText = new JTextField("5353");
         JTextField text = new JTextField("TEXT HERE", JTextField.CENTER);
+        text.setColumns(50);
+        client.setConnection ( ipText.getText(), Integer.parseInt(portText.getText()) );
 
 
         JTextArea text2 = new JTextArea(10,50);
+
+        InputThread input = new InputThread(client, text2);
+        input.start();
+
         JScrollPane scroll = new JScrollPane(text2,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -73,30 +91,49 @@ public class Gui
             public void actionPerformed(ActionEvent e)
             {
                 // connect client to the server
-                client.setConnection ( ipText.getText(), Integer.parseInt(portText.getText()) );
-                client.startConnection();
+
+                //client.startConnection();
 
                 // send encoded message
-                client.sendMessage(client.getSocket(),Encoder.encode (text.getText()) );
+                client.sendMessage( Encoder.encode (text.getText()) );
                 text.setText("");
-                String s = client.getMessage();
-                text2.append( s + "\n");
+                //String s = client.getMessage();
+                //text2.append( s + "\n");
+                client.startSocket();
+                client.startOut();
+
 
             }
         });
 
+        ActionListener enterKey = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                client.sendMessage( Encoder.encode (text.getText()) );
+                text.setText("");
+                //String s = client.getMessage();
+                //text2.append( s + "\n");
+                client.startSocket();
+                client.startOut();
+            }
+        };
 
         ActionListener updateText = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                client.setConnection ( ipText.getText(), Integer.parseInt(portText.getText()) );
-                client.startConnection();
-                String s = client.getMessage();
-                text2.setText(s);
+                //client.setConnection ( ipText.getText(), Integer.parseInt(portText.getText()) );
+                //client.startConnection();
+                //client.startSocket();
+                //input.start();
+                //String s = client.getMessage();
+                //text2.setText(s);
+                //System.out.println("s");
+                //client.startSocket();
             }
         };
-        Timer timer = new Timer(10, updateText);
+        Timer timer = new Timer(50, updateText);
         timer.setRepeats(true);
+        timer.start();
 
         controlPanel.add(connect);
         controlPanel.add(ipText);
@@ -105,6 +142,48 @@ public class Gui
         controlPanel.add(text2);
 
         mainFrame.setVisible(true);
+
+
+
     }
 
+}
+
+
+
+class InputThread extends Thread
+{
+    Client client;
+    JTextArea text;
+    InputThread(Client client, JTextArea text)
+    {
+        this.text = text; this.client = client;
+    }
+    @Override
+    public void run()
+    {
+        client.startIn();
+
+        while(true)
+        {
+            String s = client.getMessage();
+            text.append(s + "\n");
+            //client.startSocket();
+            //client.startIn();
+        }
+    }
+}
+
+class OutputThread extends Thread
+{
+    Client client;
+    OutputThread(Client client)
+    {
+        this.client = client;
+    }
+    @Override
+    public void run()
+    {
+        this.client.startOut();
+    }
 }
